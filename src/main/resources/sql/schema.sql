@@ -1,0 +1,7 @@
+CREATE TABLE 'user'(
+    'id' INT PRIMARY AUTO_INCREMENT,
+    'username' VARCHAR(50) UNIQUE NOT NULL,
+    'password' VARCHAR(225) NOT NULL,
+    'nickname' VARCHAR(50),
+    'create_time' DATETIME DEFAULT CURRENT_TIMESTAMP
+);
