@@ -1,0 +1,25 @@
+# ============================================
+# AI Blog Pro — 开发环境配置
+# 只有 dev profile 激活时才加载
+# ============================================
+
+spring:
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+  ai:
+    openai:
+      api-key: ${DEEPSEEK_API_KEY:sk-your-key}
+      base-url: https://api.deepseek.com/v1
+      chat:
+        options:
+          model: deepseek-chat
+          temperature: 0.7
+
+
+# 开发环境日志级别
+logging:
+  level:
+    com.blogpro: DEBUG
+    org.springframework.security: DEBUG

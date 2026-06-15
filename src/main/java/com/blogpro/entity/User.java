@@ -15,5 +15,9 @@ public class User {
     private String username;
     private String password;
     private String nickname;
+    private String avatarUrl;
+    private String role;
+    private String refreshToken;
     private LocalDateTime createTime;
+    private LocalDateTime updatedAt;
 }

@@ -1,0 +1,67 @@
+version: '3.8'
+# ============================================
+# AI Blog Pro — 本地开发环境 Docker Compose
+# 启动: docker compose up -d
+# 停止: docker compose down
+# ============================================
+
+services:
+  # MySQL 8.0 — 主数据库
+  mysql:
+    image: mysql:8.0
+    container_name: blog-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: blog_pro
+      TZ: Asia/Shanghai
+    ports:
+      - "3307:3306"
+    volumes:
+      # 首次启动时自动执行建表脚本
+      - ./src/main/resources/sql/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - mysql-data:/var/lib/mysql
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis 7.4 — 缓存数据库
+  redis:
+    image: redis:7.4-alpine
+    container_name: blog-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # PostgreSQL 16 + pgvector — 向量数据库（存储文章嵌入向量）
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: blog-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: blogpro
+      POSTGRES_PASSWORD: blogpro123
+      POSTGRES_DB: blog_pro_vectors
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "blogpro"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  mysql-data:
+  postgres-data:

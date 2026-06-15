@@ -31,3 +31,14 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### 私密配置 ###
+application-secret.yml
+.env
+
+### Superpowers 计划/规格（仅本地保留）###
+.superpowers/
+docs/superpowers/
+
+### Next.js 构建输出 ###
+.next/

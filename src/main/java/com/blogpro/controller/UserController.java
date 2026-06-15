@@ -1,27 +1,46 @@
 package com.blogpro.controller;
 
-import com.blogpro.entity.User;
+import com.blogpro.model.dto.request.LoginRequest;
+import com.blogpro.model.dto.request.RefreshTokenRequest;
+import com.blogpro.model.dto.request.RegisterRequest;
+import com.blogpro.model.dto.response.ApiResponse;
+import com.blogpro.model.dto.response.LoginResponse;
 import com.blogpro.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
 
+/**
+ * 用户控制器
+ *
+ * 改进点：
+ * 1. 使用 DTO 接收请求（不再直接传 Entity）
+ * 2. @Valid 触发 Jakarta Validation 校验
+ * 3. 返回统一 ApiResponse 格式
+ * 4. 构造器注入替代 @Autowired
+ */
 @RestController
 @RequestMapping("/user")
+@RequiredArgsConstructor
 public class UserController {
-    @Autowired
-    private UserService userService;
+
+    private final UserService userService;
 
     @PostMapping("/register")
-    public String register(@RequestBody User user) {
-        return userService.register(user);
+    public ApiResponse<Void> register(@Valid @RequestBody RegisterRequest request) {
+        userService.register(request);
+        return ApiResponse.success(null);
     }
 
     @PostMapping("/login")
-    public String login(@RequestBody User user) {
-        String token =  userService.login(user);
-        return token!=null?"登录成功,令牌："+token: "用户名或密码错误";
+    public ApiResponse<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
+        LoginResponse response = userService.login(request);
+        return ApiResponse.success(response);
+    }
+
+    @PostMapping("/refresh")
+    public ApiResponse<LoginResponse> refresh(@Valid @RequestBody RefreshTokenRequest request) {
+        LoginResponse response = userService.refreshAccessToken(request.getRefreshToken());
+        return ApiResponse.success(response);
     }
 }

@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx --version)",
+      "Bash(npx create-next-app@latest blog-pro-frontend --typescript --tailwind --app --src-dir --no-eslint --import-alias \"@/*\" --turbopack)",
+      "Bash(Get-ChildItem -Recurse -Path \"C:\\\\Users\\\\Xsha\\\\.claude\\\\projects\\\\c--Users-Xsha-Desktop-blog-pro\" -ErrorAction SilentlyContinue)",
+      "Bash(Select-Object FullName)",
+      "Bash(git -C c:/Users/Xsha/Desktop/blog-pro log --oneline -30)",
+      "Bash(New-Item -ItemType Directory -Force -Path \"c:\\\\Users\\\\Xsha\\\\Desktop\\\\blog-pro\\\\docs\\\\superpowers\\\\specs\")",
+      "PowerShell(New-Item -ItemType Directory -Force -Path \"c:\\\\Users\\\\Xsha\\\\Desktop\\\\blog-pro\\\\docs\\\\superpowers\\\\specs\")"
+    ]
+  }
+}

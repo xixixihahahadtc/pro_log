@@ -1,0 +1,52 @@
+# ============================================
+# AI Blog Pro — 主配置文件
+# 所有环境共享的配置写在这里
+# ============================================
+
+spring:
+  application:
+    name: blog-pro
+  # 数据库表已手动建好，不需要自动执行建表脚本
+  sql:
+    init:
+      mode: never
+  # Phase 3: 暂时禁用 pgvector（需要单独配置 PostgreSQL 数据源）
+  autoconfigure:
+    exclude:
+      - org.springframework.ai.autoconfigure.vectorstore.pgvector.PgVectorStoreAutoConfiguration
+  # 默认激活 dev 环境
+  profiles:
+    active: dev
+  # 文件上传限制
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+  # 数据库连接（值从环境变量读取，有默认值兜底）
+  datasource:
+    url: ${DB_URL:jdbc:mysql://localhost:3306/blog_pro?serverTimezone=GMT%2B8&useUnicode=true&characterEncoding=utf-8&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:Xia20041004}
+
+# MyBatis-Plus 配置
+mybatis-plus:
+  configuration:
+    # 自动将数据库下划线字段映射到 Java 驼峰属性
+    # 如 create_time -> createTime
+    map-underscore-to-camel-case: true
+    # 开发环境打印 SQL（生产环境请关闭）
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+# JWT 配置
+blog:
+  jwt:
+    # 密钥至少 256 位（32 字符），请换一个自己的！
+    secret: ${JWT_SECRET:BlogProKey_2024_Secure_Change_Me_In_Production}
+    # 访问令牌有效期：24 小时
+    access-expire-ms: 86400000
+    # 刷新令牌有效期：7 天
+    refresh-expire-ms: 604800000
+
+# SpringDoc (Swagger UI) 配置 — 使用默认路径
+# 访问地址: http://localhost:8080/swagger-ui/index.html
