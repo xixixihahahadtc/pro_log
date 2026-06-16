@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Typography, Spin, Card, Divider, Space, Button, message, Input, List, Avatar } from "antd";
 import { EyeOutlined, LikeOutlined, CommentOutlined, ClockCircleOutlined, ArrowLeftOutlined, SendOutlined, UserOutlined } from "@ant-design/icons";
 import { useParams, useRouter } from "next/navigation";
+import DOMPurify from "dompurify";
 import api from "@/lib/api";
 import { useAuthStore } from "@/stores/authStore";
 
@@ -32,12 +33,12 @@ export default function ArticlePage() {
         // 加载评论
         api.get(`/api/v1/articles/${a.id}/comments?page=1&size=50`)
           .then((r) => { if (r.data.code === 200) setComments(r.data.data.records || []); })
-          .catch(() => {});
+          .catch(() => { message.error("加载评论失败"); });
         // 查询当前用户点赞状态
         if (isLoggedIn) {
           api.get(`/api/v1/articles/${a.id}/liked`)
             .then((r) => { if (r.data.code === 200) setLiked(r.data.data); })
-            .catch(() => {});
+            .catch(() => {}); // 点赞状态查询失败不影响阅读
         }
       }
     }).finally(() => setLoading(false));
@@ -94,7 +95,7 @@ export default function ArticlePage() {
           </Button>
         </Space>
         <Divider />
-        <div style={{ fontSize: 16, lineHeight: 2 }} dangerouslySetInnerHTML={{ __html: article.content }} />
+        <div style={{ fontSize: 16, lineHeight: 2 }} dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(article.content) }} />
       </Card>
 
       {/* 评论区 */}

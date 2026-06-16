@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useState, Suspense } from "react";
-import { List, Spin, Empty } from "antd";
+import { List, Typography, Spin, Empty, Pagination, Skeleton, Card, Row, Col, message } from "antd";
 import { useSearchParams } from "next/navigation";
 import api from "@/lib/api";
 import ArticleCard from "@/components/ArticleCard";
+
+const { Title, Text } = Typography;
 
 interface Article {
   id: number; title: string; slug: string; summary: string; coverImageUrl: string;
@@ -22,33 +24,71 @@ export default function HomePage() {
 function HomeContent() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
   const searchParams = useSearchParams();
   const categoryId = searchParams.get("category");
 
   useEffect(() => {
     setLoading(true);
-    const params: Record<string, string | number> = { page: 1, size: 10 };
+    const params: Record<string, string | number> = { page, size: 9 };
     if (categoryId) params.categoryId = categoryId;
     api.get("/api/v1/articles", { params })
       .then((res) => {
-        if (res.data.code === 200) setArticles(res.data.data.records || []);
+        if (res.data.code === 200) {
+          setArticles(res.data.data.records || []);
+          setTotal(res.data.data.total || 0);
+        }
       })
-      .catch(() => {})
+      .catch(() => { message.error("加载文章失败"); })
       .finally(() => setLoading(false));
-  }, [categoryId]);
+  }, [page, categoryId]);
 
-  if (loading) return <Spin size="large" style={{ display: "block", marginTop: 100 }} />;
+  // 切分类时重置到第一页
+  useEffect(() => { setPage(1); }, [categoryId]);
+
+  if (loading) {
+    return (
+      <Row gutter={[24, 24]}>
+        {Array.from({ length: 9 }).map((_, i) => (
+          <Col xs={24} sm={24} md={12} lg={8} key={i}>
+            <Card>
+              <Skeleton.Image style={{ width: "100%", height: 180 }} active />
+              <Skeleton active paragraph={{ rows: 2 }} style={{ marginTop: 12 }} />
+            </Card>
+          </Col>
+        ))}
+      </Row>
+    );
+  }
+
   if (!articles.length) return <Empty description="暂无文章" style={{ marginTop: 100 }} />;
 
   return (
-    <List
-      grid={{ gutter: 24, xs: 1, sm: 1, md: 2, lg: 3 }}
-      dataSource={articles}
-      renderItem={(a) => (
-        <List.Item>
-          <ArticleCard article={a} />
-        </List.Item>
-      )}
-    />
+    <div>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+        <Title level={3} style={{ margin: 0 }}>全部文章</Title>
+        <Text type="secondary">共 {total} 篇文章</Text>
+      </div>
+      <List
+        grid={{ gutter: 24, xs: 1, sm: 1, md: 2, lg: 3 }}
+        dataSource={articles}
+        renderItem={(a) => (
+          <List.Item>
+            <ArticleCard article={a} />
+          </List.Item>
+        )}
+      />
+      <div style={{ display: "flex", justifyContent: "center", marginTop: 32 }}>
+        <Pagination
+          current={page}
+          total={total}
+          pageSize={9}
+          onChange={(p) => { setPage(p); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+          showTotal={(t) => `共 ${t} 篇文章`}
+          showSizeChanger={false}
+        />
+      </div>
+    </div>
   );
 }

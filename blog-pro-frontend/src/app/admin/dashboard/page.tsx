@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Card, Col, Row, Statistic, Table, Spin, Typography } from "antd";
+import { Card, Col, Row, Statistic, Table, Spin, Typography, message } from "antd";
 import {
   FileTextOutlined,
   CommentOutlined,
@@ -36,7 +36,7 @@ export default function DashboardPage() {
       .then((res) => {
         if (res.data.code === 200) setStats(res.data.data);
       })
-      .catch(() => {})
+      .catch(() => { message.error("加载统计数据失败"); })
       .finally(() => setLoading(false));
   }, []);
 

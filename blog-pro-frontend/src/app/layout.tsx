@@ -31,7 +31,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         if (res.data.code === 200) {
           setCategories(flattenCategories(res.data.data || []));
         }
-      }).catch(() => {});
+      }).catch(() => {}); // 分类加载失败不阻塞页面
     }
   }, [pathname]);
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, Suspense } from "react";
-import { List, Typography, Spin, Empty } from "antd";
+import { List, Typography, Spin, Empty, message } from "antd";
 import { useSearchParams } from "next/navigation";
 import api from "@/lib/api";
 import ArticleCard from "@/components/ArticleCard";
@@ -25,7 +25,7 @@ function SearchContent() {
       .then((res) => {
         if (res.data.code === 200) setArticles(res.data.data.records || []);
       })
-      .catch(() => {})
+      .catch(() => { message.error("搜索失败"); })
       .finally(() => setLoading(false));
   }, [query]);
 
