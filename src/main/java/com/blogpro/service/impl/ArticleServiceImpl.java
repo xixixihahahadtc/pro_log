@@ -282,7 +282,7 @@ public class ArticleServiceImpl implements ArticleService {
         Map<Integer, String> nameMap = users.stream()
                 .collect(Collectors.toMap(User::getId, u -> u.getNickname() != null ? u.getNickname() : u.getUsername()));
         for (Article a : articles) {
-            if (a.getAuthorId() != null) a.setAuthorName(nameMap.getOrDefault(a.getAuthorId(), "匿名"));
+            if (a.getAuthorId() != null) a.setAuthorName(nameMap.getOrDefault(a.getAuthorId(), ""));
         }
     }
 

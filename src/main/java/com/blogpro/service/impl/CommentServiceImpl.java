@@ -91,7 +91,7 @@ public class CommentServiceImpl implements CommentService {
         Map<Integer, String> nameMap = users.stream()
                 .collect(Collectors.toMap(User::getId, u -> u.getNickname() != null ? u.getNickname() : u.getUsername()));
         for (Comment c : comments) {
-            if (c.getUserId() != null) c.setUsername(nameMap.getOrDefault(c.getUserId(), "匿名"));
+            if (c.getUserId() != null) c.setUsername(nameMap.getOrDefault(c.getUserId(), ""));
         }
     }
 }

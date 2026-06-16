@@ -82,7 +82,7 @@ export default function ArticlePage() {
       <Card>
         <Title>{article.title}</Title>
         <Space size={16} style={{ marginBottom: 16, color: "#999" }}>
-          <span>{article.authorName || "匿名"}</span>
+          <span>{article.authorName}</span>
           <span><ClockCircleOutlined /> {article.publishedAt?.slice(0, 10)}</span>
           <span><EyeOutlined /> {article.viewCount}</span>
           <span><LikeOutlined /> {article.likeCount}</span>
@@ -124,7 +124,7 @@ export default function ArticlePage() {
             <List.Item>
               <List.Item.Meta
                 avatar={<Avatar icon={<UserOutlined />} />}
-                title={<Text type="secondary">{c.username || "匿名"} · {c.createdAt?.slice(0, 16).replace("T", " ")} {c.status === "PENDING" ? "· ⏳ 审核中" : ""}</Text>}
+                title={<Text type="secondary">{c.username || ""} · {c.createdAt?.slice(0, 16).replace("T", " ")} {c.status === "PENDING" ? "· ⏳ 审核中" : ""}</Text>}
                 description={<div style={{ fontSize: 15, color: "#333", marginTop: 4 }}>{c.content}</div>}
               />
             </List.Item>
