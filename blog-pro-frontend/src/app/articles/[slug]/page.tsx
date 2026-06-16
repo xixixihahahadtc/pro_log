@@ -19,6 +19,7 @@ export default function ArticlePage() {
   const [comments, setComments] = useState<Comment[]>([]);
   const [commentText, setCommentText] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [liked, setLiked] = useState(false);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const { isLoggedIn } = useAuthStore();
@@ -26,22 +27,33 @@ export default function ArticlePage() {
   useEffect(() => {
     api.get(`/api/v1/articles/${slug}`).then((res) => {
       if (res.data.code === 200 && res.data.data) {
-        setArticle(res.data.data);
+        const a = res.data.data;
+        setArticle(a);
         // 加载评论
-        api.get(`/api/v1/articles/${res.data.data.id}/comments?page=1&size=50`)
+        api.get(`/api/v1/articles/${a.id}/comments?page=1&size=50`)
           .then((r) => { if (r.data.code === 200) setComments(r.data.data.records || []); })
           .catch(() => {});
+        // 查询当前用户点赞状态
+        if (isLoggedIn) {
+          api.get(`/api/v1/articles/${a.id}/liked`)
+            .then((r) => { if (r.data.code === 200) setLiked(r.data.data); })
+            .catch(() => {});
+        }
       }
     }).finally(() => setLoading(false));
   }, [slug]);
 
   const handleLike = async () => {
     if (!article) return;
+    if (!isLoggedIn) { message.error("请先登录"); return; }
     try {
-      await api.post(`/api/v1/articles/${article.id}/like`);
-      setArticle({ ...article, likeCount: article.likeCount + 1 });
-      message.success("点赞成功");
-    } catch { message.error("请先登录"); }
+      const res = await api.post(`/api/v1/articles/${article.id}/like`);
+      if (res.data.code === 200) {
+        const nowLiked = res.data.data; // true=点赞, false=取消
+        setLiked(nowLiked);
+        setArticle({ ...article, likeCount: nowLiked ? article.likeCount + 1 : article.likeCount - 1 });
+      }
+    } catch { message.error("操作失败"); }
   };
 
   const handleComment = async () => {
@@ -73,7 +85,13 @@ export default function ArticlePage() {
           <span><EyeOutlined /> {article.viewCount}</span>
           <span><LikeOutlined /> {article.likeCount}</span>
           <span><CommentOutlined /> {article.commentCount}</span>
-          <Button icon={<LikeOutlined />} onClick={handleLike}>点赞</Button>
+          <Button
+            icon={<LikeOutlined />}
+            onClick={handleLike}
+            type={liked ? "primary" : "default"}
+          >
+            {liked ? "已点赞" : "点赞"}
+          </Button>
         </Space>
         <Divider />
         <div style={{ fontSize: 16, lineHeight: 2 }} dangerouslySetInnerHTML={{ __html: article.content }} />

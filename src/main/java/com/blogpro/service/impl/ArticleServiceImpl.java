@@ -4,8 +4,10 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.blogpro.entity.Article;
+import com.blogpro.entity.UserLike;
 import com.blogpro.exception.BusinessException;
 import com.blogpro.mapper.ArticleMapper;
+import com.blogpro.mapper.UserLikeMapper;
 import com.blogpro.model.enums.ResultCode;
 import com.blogpro.service.ArticleService;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +22,7 @@ import java.util.List;
 public class ArticleServiceImpl implements ArticleService {
 
     private final ArticleMapper articleMapper;
+    private final UserLikeMapper userLikeMapper;
 
     @Override
     public IPage<Article> getPublishedArticles(int page, int size, Integer categoryId, Integer tagId) {
@@ -95,13 +98,38 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public void likeArticle(Integer articleId) {
+    public boolean isLikedByUser(Integer articleId, Integer userId) {
+        QueryWrapper<UserLike> wrapper = new QueryWrapper<>();
+        wrapper.eq("user_id", userId).eq("article_id", articleId);
+        return userLikeMapper.selectCount(wrapper) > 0;
+    }
+
+    @Override
+    @Transactional
+    public boolean toggleLike(Integer articleId, Integer userId) {
         Article article = articleMapper.selectById(articleId);
         if (article == null) {
             throw new BusinessException(ResultCode.NOT_FOUND, "文章不存在");
         }
-        article.setLikeCount(article.getLikeCount() + 1);
-        articleMapper.updateById(article);
+        // 检查是否已点赞
+        QueryWrapper<UserLike> wrapper = new QueryWrapper<>();
+        wrapper.eq("user_id", userId).eq("article_id", articleId);
+        if (userLikeMapper.selectCount(wrapper) > 0) {
+            // 已点赞 → 取消
+            userLikeMapper.delete(wrapper);
+            article.setLikeCount(Math.max(0, article.getLikeCount() - 1));
+            articleMapper.updateById(article);
+            return false;
+        } else {
+            // 未点赞 → 点赞
+            UserLike like = new UserLike();
+            like.setUserId(userId);
+            like.setArticleId(articleId);
+            userLikeMapper.insert(like);
+            article.setLikeCount(article.getLikeCount() + 1);
+            articleMapper.updateById(article);
+            return true;
+        }
     }
 
     @Override

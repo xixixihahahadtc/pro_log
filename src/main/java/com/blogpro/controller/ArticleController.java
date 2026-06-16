@@ -88,11 +88,34 @@ public class ArticleController {
         return ApiResponse.success(null);
     }
 
-    /** 点赞 */
+    /** 获取当前用户是否已点赞 */
+    @GetMapping("/{id}/liked")
+    public ApiResponse<Boolean> isLiked(@PathVariable Integer id) {
+        Integer userId = null;
+        try {
+            Object principal = SecurityContextHolder.getContext()
+                    .getAuthentication().getPrincipal();
+            if (principal instanceof Integer) userId = (Integer) principal;
+        } catch (Exception ignored) {}
+        if (userId == null) return ApiResponse.success(false);
+        boolean liked = articleService.isLikedByUser(id, userId);
+        return ApiResponse.success(liked);
+    }
+
+    /** 点赞/取消点赞（toggle） */
     @PostMapping("/{id}/like")
-    public ApiResponse<Void> like(@PathVariable Integer id) {
-        articleService.likeArticle(id);
-        return ApiResponse.success(null);
+    public ApiResponse<Boolean> like(@PathVariable Integer id) {
+        Integer userId = null;
+        try {
+            Object principal = SecurityContextHolder.getContext()
+                    .getAuthentication().getPrincipal();
+            if (principal instanceof Integer) userId = (Integer) principal;
+        } catch (Exception ignored) {}
+        if (userId == null) {
+            return ApiResponse.error(ResultCode.UNAUTHORIZED, "请先登录");
+        }
+        boolean liked = articleService.toggleLike(id, userId);
+        return ApiResponse.success(liked);
     }
 
     // ===== 草稿接口 =====

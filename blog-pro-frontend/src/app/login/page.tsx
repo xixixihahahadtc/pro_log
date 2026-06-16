@@ -15,13 +15,17 @@ export default function LoginPage() {
 
   const onFinish = async (values: { username: string; password: string }) => {
     setLoading(true);
-    const err = await login(values.username, values.password);
-    setLoading(false);
-    if (err) message.error(err);
-    else {
-      message.success("登录成功");
-      router.push("/");
+    try {
+      const err = await login(values.username, values.password);
+      if (err) message.error(err);
+      else {
+        message.success("登录成功");
+        router.push("/");
+      }
+    } catch {
+      message.error("网络错误，请检查后端是否启动");
     }
+    setLoading(false);
   };
 
   return (

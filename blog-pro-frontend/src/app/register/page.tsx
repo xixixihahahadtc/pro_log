@@ -15,13 +15,17 @@ export default function RegisterPage() {
 
   const onFinish = async (values: { username: string; password: string; nickname: string }) => {
     setLoading(true);
-    const err = await register(values.username, values.password, values.nickname);
-    setLoading(false);
-    if (err) message.error(err);
-    else {
-      message.success("注册成功，请登录");
-      router.push("/login");
+    try {
+      const err = await register(values.username, values.password, values.nickname);
+      if (err) message.error(err);
+      else {
+        message.success("注册成功，请登录");
+        router.push("/login");
+      }
+    } catch {
+      message.error("网络错误，请检查后端是否启动");
     }
+    setLoading(false);
   };
 
   return (

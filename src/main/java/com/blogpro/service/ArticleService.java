@@ -16,8 +16,11 @@ public interface ArticleService {
     Article updateArticle(Integer id, Article article);
     /** 删除文章（软删除：改为 ARCHIVED 状态） */
     void deleteArticle(Integer id);
-    /** 点赞 */
-    void likeArticle(Integer articleId);
+    /** 点赞/取消点赞 toggle — 返回 true=已点赞, false=已取消 */
+    boolean toggleLike(Integer articleId, Integer userId);
+
+    /** 检查用户是否已点赞 */
+    boolean isLikedByUser(Integer articleId, Integer userId);
 
     /** 保存草稿（新建或更新） */
     Article saveDraft(Article article, Integer authorId);
