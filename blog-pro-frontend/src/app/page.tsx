@@ -2,23 +2,16 @@
 
 import { useEffect, useState, Suspense } from "react";
 import { List, Typography, Spin, Empty, Pagination, Skeleton, Card, Row, Col, message, Divider } from "antd";
-import {
-  GithubOutlined,
-  EnvironmentOutlined,
-  CalendarOutlined,
-} from "@ant-design/icons";
+import { GithubOutlined } from "@ant-design/icons";
 import { useSearchParams } from "next/navigation";
 import api from "@/lib/api";
 import ArticleCard from "@/components/ArticleCard";
 
-const { Title, Text, Paragraph } = Typography;
+const { Title, Text } = Typography;
 
-// ------ 个人信息（改成你自己的） ------
 const PROFILE = {
   name: "Xsha",
-  avatar: "", // 留空显示首字母头像
-  bio: "全栈开发者 · 写代码也写文字",
-  location: "China",
+  bio: "全栈开发者，写代码也写文字。",
   github: "https://github.com/xixixihahahadtc",
 };
 
@@ -61,17 +54,11 @@ function HomeContent() {
 
   useEffect(() => { setPage(1); }, [categoryId]);
 
-  // ====== 加载骨架屏 ======
   if (loading) {
     return (
       <div>
-        <div style={{
-          background: "linear-gradient(135deg, #141e30 0%, #243b55 100%)",
-          borderRadius: 16, padding: "48px 32px", marginBottom: 32,
-          textAlign: "center",
-        }}>
-          <Skeleton.Avatar size={80} active style={{ marginBottom: 16 }} />
-          <Skeleton title={{ style: { margin: "0 auto 8px" } }} paragraph={{ rows: 1 }} active />
+        <div style={{ marginBottom: 48 }}>
+          <Skeleton title={{ width: 120 }} paragraph={{ rows: 1, width: 200 }} active />
         </div>
         <Row gutter={[24, 24]}>
           {Array.from({ length: 9 }).map((_, i) => (
@@ -89,69 +76,22 @@ function HomeContent() {
 
   return (
     <div>
-      {/* ====== 个人主页 Banner ====== */}
-      <div style={{
-        background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)",
-        borderRadius: 16,
-        padding: "56px 32px",
-        marginBottom: 40,
-        textAlign: "center",
-        position: "relative",
-        overflow: "hidden",
-      }}>
-        {/* 背景装饰圆 */}
-        <div style={{
-          position: "absolute", top: -60, right: -40,
-          width: 200, height: 200, borderRadius: "50%",
-          background: "rgba(255,255,255,0.03)",
-        }} />
-        <div style={{
-          position: "absolute", bottom: -80, left: -30,
-          width: 240, height: 240, borderRadius: "50%",
-          background: "rgba(255,255,255,0.02)",
-        }} />
-
-        {/* 头像 */}
-        {PROFILE.avatar ? (
-          <img src={PROFILE.avatar} alt={PROFILE.name}
-            style={{
-              width: 96, height: 96, borderRadius: "50%",
-              border: "3px solid rgba(255,255,255,0.2)",
-              objectFit: "cover", marginBottom: 20,
-              position: "relative", zIndex: 1,
-            }} />
-        ) : (
-          <div style={{
-            width: 96, height: 96, borderRadius: "50%",
-            background: "linear-gradient(135deg, #667eea, #764ba2)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: 36, fontWeight: 700, color: "#fff",
-            margin: "0 auto 20px", position: "relative", zIndex: 1,
-            border: "3px solid rgba(255,255,255,0.2)",
-          }}>
-            {PROFILE.name.charAt(0)}
-          </div>
-        )}
-
-        {/* 名字 + 简介 */}
-        <Title level={2} style={{ color: "#fff", margin: "0 0 8px", position: "relative", zIndex: 1 }}>
+      {/* ====== 极简头部 ====== */}
+      <div style={{ marginBottom: 48 }}>
+        <Title level={2} style={{ marginBottom: 4, fontWeight: 600 }}>
           {PROFILE.name}
         </Title>
-        <Paragraph style={{ color: "rgba(255,255,255,0.7)", fontSize: 16, marginBottom: 20, position: "relative", zIndex: 1 }}>
-          {PROFILE.bio}
-        </Paragraph>
-
-        {/* 数据行 */}
-        <div style={{
-          display: "flex", justifyContent: "center", gap: 40, flexWrap: "wrap",
-          color: "rgba(255,255,255,0.6)", fontSize: 14, position: "relative", zIndex: 1,
-        }}>
-          <span><CalendarOutlined /> 共 {total} 篇文章</span>
-          <span><EnvironmentOutlined /> {PROFILE.location}</span>
+        <Text type="secondary" style={{ fontSize: 15 }}>
+          {PROFILE.bio}{" "}
           <a href={PROFILE.github} target="_blank" rel="noopener noreferrer"
-            style={{ color: "rgba(255,255,255,0.6)", textDecoration: "none" }}>
-            <GithubOutlined /> GitHub
+            style={{ color: "inherit", marginLeft: 4 }}>
+            <GithubOutlined />
           </a>
+        </Text>
+        <div style={{ marginTop: 8 }}>
+          <Text type="secondary" style={{ fontSize: 13 }}>
+            {total} 篇文章
+          </Text>
         </div>
       </div>
 
@@ -160,9 +100,6 @@ function HomeContent() {
         <Empty description="暂无文章" style={{ marginTop: 60 }} />
       ) : (
         <>
-          <Divider orientation="left" style={{ marginBottom: 24 }}>
-            <Text type="secondary" style={{ fontSize: 14, letterSpacing: 2 }}>最新文章</Text>
-          </Divider>
           <div style={{ opacity: fetching ? 0.6 : 1, transition: "opacity 0.2s" }}>
             <List
               grid={{ gutter: 24, xs: 1, sm: 1, md: 2, lg: 3 }}
