@@ -14,6 +14,10 @@ import org.springframework.util.StringUtils;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.Statement;
+
 /**
  * 初始化默认数据（首次启动时）
  * 只在表为空时插入，不会覆盖已有数据
@@ -26,6 +30,7 @@ public class DataInitializer implements CommandLineRunner {
     private final CategoryMapper categoryMapper;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
+    private final DataSource dataSource;
 
     @Value("${ADMIN_USERNAME:}")
     private String adminUsername;
@@ -35,6 +40,9 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
+        // 0. 确保表存在
+        ensureTables();
+
         // 1. 初始化默认分类
         long count = categoryMapper.selectCount(new QueryWrapper<>());
         if (count == 0) {
@@ -72,6 +80,22 @@ public class DataInitializer implements CommandLineRunner {
                 userMapper.updateById(existing);
                 log.info("已同步管理员账号：{}（ADMIN，密码已更新）", adminUsername);
             }
+        }
+    }
+
+    private void ensureTables() {
+        try (Connection conn = dataSource.getConnection();
+             Statement stmt = conn.createStatement()) {
+            stmt.execute("CREATE TABLE IF NOT EXISTS user_likes (" +
+                    "user_id INT NOT NULL, " +
+                    "article_id INT NOT NULL, " +
+                    "created_at DATETIME DEFAULT CURRENT_TIMESTAMP, " +
+                    "PRIMARY KEY (user_id, article_id), " +
+                    "FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE, " +
+                    "FOREIGN KEY (article_id) REFERENCES article(id) ON DELETE CASCADE" +
+                    ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+        } catch (Exception e) {
+            log.warn("自动建表失败（可能已存在）: {}", e.getMessage());
         }
     }
 }
