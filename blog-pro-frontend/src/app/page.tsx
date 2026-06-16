@@ -1,19 +1,12 @@
 "use client";
 
 import { useEffect, useState, Suspense } from "react";
-import { List, Typography, Spin, Empty, Pagination, Skeleton, Card, Row, Col, message, Divider } from "antd";
-import { GithubOutlined } from "@ant-design/icons";
+import { List, Typography, Spin, Empty, Pagination, Skeleton, Card, Row, Col, message } from "antd";
 import { useSearchParams } from "next/navigation";
 import api from "@/lib/api";
 import ArticleCard from "@/components/ArticleCard";
 
 const { Title, Text } = Typography;
-
-const PROFILE = {
-  name: "Xsha",
-  bio: "全栈开发者，写代码也写文字。",
-  github: "https://github.com/xixixihahahadtc",
-};
 
 interface Article {
   id: number; title: string; slug: string; summary: string; coverImageUrl: string;
@@ -57,9 +50,7 @@ function HomeContent() {
   if (loading) {
     return (
       <div>
-        <div style={{ marginBottom: 48 }}>
-          <Skeleton title={{ width: 120 }} paragraph={{ rows: 1, width: 200 }} active />
-        </div>
+        <Skeleton title style={{ marginBottom: 24, width: 160 }} active />
         <Row gutter={[24, 24]}>
           {Array.from({ length: 9 }).map((_, i) => (
             <Col xs={24} sm={24} md={12} lg={8} key={i}>
@@ -76,26 +67,11 @@ function HomeContent() {
 
   return (
     <div>
-      {/* ====== 极简头部 ====== */}
-      <div style={{ marginBottom: 48 }}>
-        <Title level={2} style={{ marginBottom: 4, fontWeight: 600 }}>
-          {PROFILE.name}
-        </Title>
-        <Text type="secondary" style={{ fontSize: 15 }}>
-          {PROFILE.bio}{" "}
-          <a href={PROFILE.github} target="_blank" rel="noopener noreferrer"
-            style={{ color: "inherit", marginLeft: 4 }}>
-            <GithubOutlined />
-          </a>
-        </Text>
-        <div style={{ marginTop: 8 }}>
-          <Text type="secondary" style={{ fontSize: 13 }}>
-            {total} 篇文章
-          </Text>
-        </div>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 24 }}>
+        <Title level={3} style={{ margin: 0 }}>最新文章</Title>
+        <Text type="secondary">共 {total} 篇</Text>
       </div>
 
-      {/* ====== 文章列表 ====== */}
       {articles.length === 0 ? (
         <Empty description="暂无文章" style={{ marginTop: 60 }} />
       ) : (
