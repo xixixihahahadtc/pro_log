@@ -163,6 +163,27 @@ public class ArticleController {
         return ApiResponse.success(result);
     }
 
+    // ===== 管理员接口 =====
+
+    /** 管理员文章列表（所有状态，可按 status 筛选） */
+    @GetMapping("/admin")
+    @RequireRole({"AUTHOR", "ADMIN"})
+    public ApiResponse<IPage<Article>> adminList(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "ALL") String status) {
+        IPage<Article> result = articleService.getAllArticles(page, size, status);
+        return ApiResponse.success(result);
+    }
+
+    /** 管理员按 ID 获取文章详情 */
+    @GetMapping("/admin/{id}")
+    @RequireRole({"AUTHOR", "ADMIN"})
+    public ApiResponse<Article> adminDetail(@PathVariable Integer id) {
+        Article article = articleService.getArticleById(id);
+        return ApiResponse.success(article);
+    }
+
     private DraftResponse toDraftResponse(Article article) {
         DraftResponse res = new DraftResponse();
         res.setId(article.getId());
