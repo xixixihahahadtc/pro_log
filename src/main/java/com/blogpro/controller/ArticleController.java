@@ -1,0 +1,179 @@
+package com.blogpro.controller;
+
+import com.blogpro.annotation.RequireRole;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.blogpro.entity.Article;
+import com.blogpro.model.dto.request.ArticleCreateRequest;
+import com.blogpro.model.dto.request.DraftSaveRequest;
+import com.blogpro.model.dto.response.ApiResponse;
+import com.blogpro.model.dto.response.DraftResponse;
+import java.util.List;
+import java.util.stream.Collectors;
+import com.blogpro.service.ArticleService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/v1/articles")
+@RequiredArgsConstructor
+public class ArticleController {
+
+    private final ArticleService articleService;
+
+    // ===== 公开接口 =====
+
+    /** 文章列表（分页，可按分类过滤） */
+    @GetMapping
+    public ApiResponse<IPage<Article>> list(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) Integer categoryId,
+            @RequestParam(required = false) Integer tagId) {
+        IPage<Article> result = articleService.getPublishedArticles(page, size, categoryId, tagId);
+        return ApiResponse.success(result);
+    }
+
+    /** 文章详情（按 slug） */
+    @GetMapping("/{slug}")
+    public ApiResponse<Article> detail(@PathVariable String slug) {
+        Article article = articleService.getArticleBySlug(slug);
+        return ApiResponse.success(article);
+    }
+
+    // ===== 需认证接口 =====
+
+    /** 创建文章 */
+    @PostMapping
+    @RequireRole({"AUTHOR", "ADMIN"})
+    public ApiResponse<Article> create(@Valid @RequestBody ArticleCreateRequest request) {
+        // 从 JWT 安全上下文中取出当前用户 ID
+        Integer userId = (Integer) SecurityContextHolder.getContext()
+                .getAuthentication().getPrincipal();
+
+        Article article = new Article();
+        article.setTitle(request.getTitle());
+        article.setContent(request.getContent());
+        article.setSummary(request.getSummary());
+        article.setCoverImageUrl(request.getCoverImageUrl());
+        article.setCategoryId(request.getCategoryId());
+        // tagIds 暂时不处理，后续优化
+
+        Article created = articleService.createArticle(article, userId);
+        return ApiResponse.success(created);
+    }
+
+    /** 更新文章 */
+    @PutMapping("/{id}")
+    @RequireRole({"AUTHOR", "ADMIN"})
+    public ApiResponse<Article> update(@PathVariable Integer id,
+                                       @Valid @RequestBody ArticleCreateRequest request) {
+        Article article = new Article();
+        article.setTitle(request.getTitle());
+        article.setContent(request.getContent());
+        article.setSummary(request.getSummary());
+        article.setCoverImageUrl(request.getCoverImageUrl());
+        article.setCategoryId(request.getCategoryId());
+
+        Article updated = articleService.updateArticle(id, article);
+        return ApiResponse.success(updated);
+    }
+
+    /** 删除文章（软删除） */
+    @DeleteMapping("/{id}")
+    @RequireRole({"AUTHOR", "ADMIN"})
+    public ApiResponse<Void> delete(@PathVariable Integer id) {
+        articleService.deleteArticle(id);
+        return ApiResponse.success(null);
+    }
+
+    /** 点赞 */
+    @PostMapping("/{id}/like")
+    public ApiResponse<Void> like(@PathVariable Integer id) {
+        articleService.likeArticle(id);
+        return ApiResponse.success(null);
+    }
+
+    // ===== 草稿接口 =====
+
+    /** 保存草稿（新建或更新） */
+    @PostMapping("/draft")
+    @RequireRole({"AUTHOR", "ADMIN"})
+    public ApiResponse<DraftResponse> saveDraft(@RequestBody DraftSaveRequest request) {
+        Integer userId = (Integer) SecurityContextHolder.getContext()
+                .getAuthentication().getPrincipal();
+
+        Article article = new Article();
+        article.setId(request.getId());
+        article.setTitle(request.getTitle());
+        article.setContent(request.getContent());
+        article.setSummary(request.getSummary());
+        article.setCoverImageUrl(request.getCoverImageUrl());
+        article.setCategoryId(request.getCategoryId());
+
+        Article saved = articleService.saveDraft(article, userId);
+        return ApiResponse.success(toDraftResponse(saved));
+    }
+
+    /** 获取当前用户的草稿列表 */
+    @GetMapping("/drafts")
+    @RequireRole({"AUTHOR", "ADMIN"})
+    public ApiResponse<List<DraftResponse>> listDrafts() {
+        Integer userId = (Integer) SecurityContextHolder.getContext()
+                .getAuthentication().getPrincipal();
+        List<Article> drafts = articleService.getDraftsByUser(userId);
+        List<DraftResponse> result = drafts.stream()
+                .map(this::toDraftResponse)
+                .collect(Collectors.toList());
+        return ApiResponse.success(result);
+    }
+
+    /** 获取单篇草稿 */
+    @GetMapping("/draft/{id}")
+    @RequireRole({"AUTHOR", "ADMIN"})
+    public ApiResponse<DraftResponse> getDraft(@PathVariable Integer id) {
+        Article article = articleService.getDraftById(id);
+        return ApiResponse.success(toDraftResponse(article));
+    }
+
+    /** 删除草稿 */
+    @DeleteMapping("/draft/{id}")
+    @RequireRole({"AUTHOR", "ADMIN"})
+    public ApiResponse<Void> deleteDraft(@PathVariable Integer id) {
+        articleService.deleteDraft(id);
+        return ApiResponse.success(null);
+    }
+
+    /** 发布草稿 */
+    @PutMapping("/{id}/publish")
+    @RequireRole({"AUTHOR", "ADMIN"})
+    public ApiResponse<Article> publishDraft(@PathVariable Integer id) {
+        Article published = articleService.publishDraft(id);
+        return ApiResponse.success(published);
+    }
+
+    /** 搜索文章（标题+内容关键词） */
+    @GetMapping("/search")
+    public ApiResponse<IPage<Article>> search(
+            @RequestParam String q,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        IPage<Article> result = articleService.searchArticles(q, page, size);
+        return ApiResponse.success(result);
+    }
+
+    private DraftResponse toDraftResponse(Article article) {
+        DraftResponse res = new DraftResponse();
+        res.setId(article.getId());
+        res.setTitle(article.getTitle());
+        res.setContent(article.getContent());
+        res.setSummary(article.getSummary());
+        res.setCoverImageUrl(article.getCoverImageUrl());
+        res.setCategoryId(article.getCategoryId());
+        res.setStatus(article.getStatus());
+        res.setCreatedAt(article.getCreatedAt());
+        res.setUpdatedAt(article.getUpdatedAt());
+        return res;
+    }
+}
