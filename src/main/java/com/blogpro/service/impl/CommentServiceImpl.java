@@ -89,7 +89,7 @@ public class CommentServiceImpl implements CommentService {
         if (userIds.isEmpty()) return;
         List<User> users = userMapper.selectBatchIds(userIds);
         Map<Integer, String> nameMap = users.stream()
-                .collect(Collectors.toMap(User::getId, u -> u.getNickname() != null ? u.getNickname() : u.getUsername()));
+                .collect(Collectors.toMap(User::getId, User::getUsername));
         for (Comment c : comments) {
             if (c.getUserId() != null) c.setUsername(nameMap.getOrDefault(c.getUserId(), ""));
         }

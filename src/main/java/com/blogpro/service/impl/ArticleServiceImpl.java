@@ -280,7 +280,7 @@ public class ArticleServiceImpl implements ArticleService {
         if (authorIds.isEmpty()) return;
         List<User> users = userMapper.selectBatchIds(authorIds);
         Map<Integer, String> nameMap = users.stream()
-                .collect(Collectors.toMap(User::getId, u -> u.getNickname() != null ? u.getNickname() : u.getUsername()));
+                .collect(Collectors.toMap(User::getId, User::getUsername));
         for (Article a : articles) {
             if (a.getAuthorId() != null) a.setAuthorName(nameMap.getOrDefault(a.getAuthorId(), ""));
         }
