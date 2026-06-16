@@ -84,7 +84,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                       onClick={({ key }) => router.push(key)}
                       style={{ flex: 1 }}
                     />
-                    <div style={{ flex: 1, display: "flex", justifyContent: "center", maxWidth: 400 }}>
+                    <div style={{ flex: 1, display: "flex", justifyContent: "center", maxWidth: 400, marginRight: 38 }}>
                       <Input.Search
                         placeholder="搜索文章..."
                         value={searchText}
