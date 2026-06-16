@@ -32,7 +32,7 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api.get("/api/v1/admin/stats")
+    api.get("/api/v1/articles/admin/stats")
       .then((res) => {
         if (res.data.code === 200) setStats(res.data.data);
       })

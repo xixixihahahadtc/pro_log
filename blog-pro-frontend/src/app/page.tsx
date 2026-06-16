@@ -26,11 +26,12 @@ function HomeContent() {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
+  const [fetching, setFetching] = useState(false);
   const searchParams = useSearchParams();
   const categoryId = searchParams.get("category");
 
   useEffect(() => {
-    setLoading(true);
+    setFetching(true);
     const params: Record<string, string | number> = { page, size: 9 };
     if (categoryId) params.categoryId = categoryId;
     api.get("/api/v1/articles", { params })
@@ -41,7 +42,7 @@ function HomeContent() {
         }
       })
       .catch(() => { message.error("加载文章失败"); })
-      .finally(() => setLoading(false));
+      .finally(() => { setLoading(false); setFetching(false); });
   }, [page, categoryId]);
 
   // 切分类时重置到第一页
@@ -70,15 +71,17 @@ function HomeContent() {
         <Title level={3} style={{ margin: 0 }}>全部文章</Title>
         <Text type="secondary">共 {total} 篇文章</Text>
       </div>
-      <List
-        grid={{ gutter: 24, xs: 1, sm: 1, md: 2, lg: 3 }}
-        dataSource={articles}
-        renderItem={(a) => (
-          <List.Item>
-            <ArticleCard article={a} />
-          </List.Item>
-        )}
-      />
+      <div style={{ opacity: fetching ? 0.5 : 1, transition: "opacity 0.15s" }}>
+        <List
+          grid={{ gutter: 24, xs: 1, sm: 1, md: 2, lg: 3 }}
+          dataSource={articles}
+          renderItem={(a) => (
+            <List.Item>
+              <ArticleCard article={a} />
+            </List.Item>
+          )}
+        />
+      </div>
       <div style={{ display: "flex", justifyContent: "center", marginTop: 32 }}>
         <Pagination
           current={page}
