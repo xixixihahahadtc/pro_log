@@ -31,6 +31,14 @@ public class TagController {
         return ApiResponse.success(created);
     }
 
+    /** 更新标签（管理员） */
+    @PutMapping("/{id}")
+    @RequireRole("ADMIN")
+    public ApiResponse<Tag> update(@PathVariable Integer id, @RequestBody Tag tag) {
+        Tag updated = tagService.updateTag(id, tag);
+        return ApiResponse.success(updated);
+    }
+
     /** 删除标签（管理员） */
     @DeleteMapping("/{id}")
     @RequireRole("ADMIN")

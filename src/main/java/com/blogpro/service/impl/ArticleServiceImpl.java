@@ -51,9 +51,12 @@ public class ArticleServiceImpl implements ArticleService {
             throw new BusinessException(ResultCode.NOT_FOUND, "文章不存在");
         }
 
-        // 增加浏览次数（用 LambdaUpdateWrapper 直接 update，避免并发问题）
+        // 原子更新浏览次数，避免并发丢失
         article.setViewCount(article.getViewCount() + 1);
-        articleMapper.updateById(article);
+        com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper<Article> uw =
+                new com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper<>();
+        uw.eq("id", article.getId()).setSql("view_count = view_count + 1");
+        articleMapper.update(uw);
 
         return article;
     }

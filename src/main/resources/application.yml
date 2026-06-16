@@ -6,14 +6,6 @@
 spring:
   application:
     name: blog-pro
-  # 数据库表已手动建好，不需要自动执行建表脚本
-  sql:
-    init:
-      mode: never
-  # Phase 3: 暂时禁用 pgvector（需要单独配置 PostgreSQL 数据源）
-  autoconfigure:
-    exclude:
-      - org.springframework.ai.autoconfigure.vectorstore.pgvector.PgVectorStoreAutoConfiguration
   # 默认激活 dev 环境
   profiles:
     active: dev
@@ -27,7 +19,7 @@ spring:
     url: ${DB_URL:jdbc:mysql://localhost:3306/blog_pro?serverTimezone=GMT%2B8&useUnicode=true&characterEncoding=utf-8&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true}
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: ${DB_USERNAME:root}
-    password: ${DB_PASSWORD:Xia20041004}
+    password: ${DB_PASSWORD:}
 
 # MyBatis-Plus 配置
 mybatis-plus:

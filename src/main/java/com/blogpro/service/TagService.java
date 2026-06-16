@@ -9,6 +9,8 @@ public interface TagService {
     List<Tag> getAllTags();
     /** 创建标签 */
     Tag createTag(Tag tag);
+    /** 更新标签 */
+    Tag updateTag(Integer id, Tag tag);
     /** 删除标签 */
     void deleteTag(Integer id);
 }

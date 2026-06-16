@@ -32,7 +32,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public Comment createComment(Comment comment) {
-        comment.setStatus("APPROVED");
+        comment.setStatus("PENDING"); // 新评论默认待审核
         commentMapper.insert(comment);
 
         // 同步更新文章评论计数

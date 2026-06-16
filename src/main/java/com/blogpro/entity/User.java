@@ -1,6 +1,7 @@
 package com.blogpro.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
@@ -18,6 +19,7 @@ public class User {
     private String avatarUrl;
     private String role;
     private String refreshToken;
-    private LocalDateTime createTime;
+    @TableField("create_time")
+    private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }
