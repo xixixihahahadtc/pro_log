@@ -36,4 +36,10 @@ public interface ArticleService {
 
     /** 搜索文章（标题+内容模糊匹配） */
     IPage<Article> searchArticles(String keyword, int page, int size);
+
+    /** 管理员分页获取所有文章（可按状态筛选） */
+    IPage<Article> getAllArticles(int page, int size, String status);
+
+    /** 管理员按 ID 获取文章详情（不受状态限制） */
+    Article getArticleById(Integer id);
 }

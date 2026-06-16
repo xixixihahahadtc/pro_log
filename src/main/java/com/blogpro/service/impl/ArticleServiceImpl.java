@@ -182,6 +182,25 @@ public class ArticleServiceImpl implements ArticleService {
         return articleMapper.selectPage(new Page<>(page, size), wrapper);
     }
 
+    @Override
+    public IPage<Article> getAllArticles(int page, int size, String status) {
+        QueryWrapper<Article> wrapper = new QueryWrapper<>();
+        if (status != null && !"ALL".equals(status)) {
+            wrapper.eq("status", status);
+        }
+        wrapper.orderByDesc("updated_at");
+        return articleMapper.selectPage(new Page<>(page, size), wrapper);
+    }
+
+    @Override
+    public Article getArticleById(Integer id) {
+        Article article = articleMapper.selectById(id);
+        if (article == null) {
+            throw new BusinessException(ResultCode.NOT_FOUND, "文章不存在");
+        }
+        return article;
+    }
+
     /** 生成 URL 友好的 slug（简化版：标题 + 时间戳） */
     private String generateSlug(String title) {
         // 简单实现：保留字母数字，空格转横线，加时间戳防重复
