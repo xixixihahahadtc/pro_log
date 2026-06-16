@@ -1,6 +1,7 @@
 package com.blogpro.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
@@ -18,6 +19,8 @@ public class Comment {
     private Integer id;
     private Integer articleId;
     private Integer userId;
+    @TableField(exist = false)
+    private String username;     // 非数据库字段，查询时填充
     private Integer parentId;    // NULL=顶级评论, 非NULL=回复某条评论
     private String content;
     private String status;       // PENDING / APPROVED / REJECTED

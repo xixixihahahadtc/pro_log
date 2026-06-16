@@ -12,6 +12,7 @@ interface Article {
   slug: string;
   summary: string;
   coverImageUrl: string;
+  authorName: string;
   viewCount: number;
   likeCount: number;
   commentCount: number;
@@ -75,6 +76,7 @@ export default function ArticleCard({
                 : (article.summary || "暂无摘要")}
             </Paragraph>
             <Space style={{ marginTop: 8 }} size={12}>
+              <span>{article.authorName || "匿名"}</span>
               <span><EyeOutlined /> {article.viewCount}</span>
               <span><LikeOutlined /> {article.likeCount}</span>
               <span><CommentOutlined /> {article.commentCount}</span>

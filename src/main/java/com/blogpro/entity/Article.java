@@ -1,6 +1,7 @@
 package com.blogpro.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
@@ -21,6 +22,8 @@ public class Article {
     private String summary;
     private String coverImageUrl;
     private Integer authorId;
+    @TableField(exist = false)
+    private String authorName;       // 非数据库字段，查询时填充
     private Integer categoryId;
     private String status;           // DRAFT / PUBLISHED / ARCHIVED
     private Integer viewCount;

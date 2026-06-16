@@ -3,7 +3,11 @@ package com.blogpro.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.blogpro.entity.Article;
+import com.blogpro.entity.User;
 import com.blogpro.entity.UserLike;
 import com.blogpro.exception.BusinessException;
 import com.blogpro.mapper.ArticleMapper;
@@ -18,7 +22,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -42,7 +47,9 @@ public class ArticleServiceImpl implements ArticleService {
         // 注意: tag 过滤需要通过 article_tag 中间表联查
         // 此处先简化，只做 category 过滤，tag 过滤在后续优化
 
-        return articleMapper.selectPage(new Page<>(page, size), wrapper);
+        IPage<Article> result = articleMapper.selectPage(new Page<>(page, size), wrapper);
+        fillAuthorNames(result.getRecords());
+        return result;
     }
 
     @Override
@@ -215,7 +222,9 @@ public class ArticleServiceImpl implements ArticleService {
         wrapper.eq("status", "PUBLISHED")
                .and(w -> w.like("title", keyword).or().like("content", keyword))
                .orderByDesc("published_at");
-        return articleMapper.selectPage(new Page<>(page, size), wrapper);
+        IPage<Article> result = articleMapper.selectPage(new Page<>(page, size), wrapper);
+        fillAuthorNames(result.getRecords());
+        return result;
     }
 
     @Override
@@ -225,7 +234,9 @@ public class ArticleServiceImpl implements ArticleService {
             wrapper.eq("status", status);
         }
         wrapper.orderByDesc("updated_at");
-        return articleMapper.selectPage(new Page<>(page, size), wrapper);
+        IPage<Article> result = articleMapper.selectPage(new Page<>(page, size), wrapper);
+        fillAuthorNames(result.getRecords());
+        return result;
     }
 
     @Override
@@ -254,9 +265,25 @@ public class ArticleServiceImpl implements ArticleService {
         recentWrapper.eq("status", "PUBLISHED")
                 .orderByDesc("published_at")
                 .last("LIMIT 5");
-        stats.setRecentArticles(articleMapper.selectList(recentWrapper));
+        List<Article> recentArticles = articleMapper.selectList(recentWrapper);
+        fillAuthorNames(recentArticles);
+        stats.setRecentArticles(recentArticles);
 
         return stats;
+    }
+
+    /** 批量填充文章作者昵称 */
+    private void fillAuthorNames(List<Article> articles) {
+        if (articles == null || articles.isEmpty()) return;
+        Set<Integer> authorIds = articles.stream()
+                .map(Article::getAuthorId).filter(Objects::nonNull).collect(Collectors.toSet());
+        if (authorIds.isEmpty()) return;
+        List<User> users = userMapper.selectBatchIds(authorIds);
+        Map<Integer, String> nameMap = users.stream()
+                .collect(Collectors.toMap(User::getId, u -> u.getNickname() != null ? u.getNickname() : u.getUsername()));
+        for (Article a : articles) {
+            if (a.getAuthorId() != null) a.setAuthorName(nameMap.getOrDefault(a.getAuthorId(), "匿名"));
+        }
     }
 
     /** 生成 URL 友好的 slug（简化版：标题 + 时间戳） */
