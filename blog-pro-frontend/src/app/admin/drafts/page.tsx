@@ -2,10 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { List, Button, message, Typography, Popconfirm, Empty } from "antd";
-import { EditOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
+import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import { useRouter } from "next/navigation";
 import api from "@/lib/api";
-import { useAuthStore } from "@/stores/authStore";
 
 const { Title, Text } = Typography;
 
@@ -20,12 +19,10 @@ export default function DraftsPage() {
   const [drafts, setDrafts] = useState<Draft[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
-  const { isLoggedIn } = useAuthStore();
 
   useEffect(() => {
-    if (!isLoggedIn) { router.push("/login"); return; }
     loadDrafts();
-  }, [isLoggedIn]);
+  }, []);
 
   const loadDrafts = async () => {
     setLoading(true);
@@ -47,10 +44,10 @@ export default function DraftsPage() {
   };
 
   return (
-    <div style={{ maxWidth: 800, margin: "0 auto" }}>
+    <div>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24 }}>
-        <Title level={3} style={{ margin: 0 }}>📝 我的草稿</Title>
-        <Button type="primary" icon={<PlusOutlined />} onClick={() => router.push("/admin")}>
+        <Title level={4} style={{ margin: 0 }}>草稿箱</Title>
+        <Button type="primary" onClick={() => router.push("/admin")}>
           写新文章
         </Button>
       </div>
