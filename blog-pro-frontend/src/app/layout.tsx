@@ -8,6 +8,7 @@ import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useAuthStore } from "@/stores/authStore";
 import AiChat from "@/components/AiChat";
 import api from "@/lib/api";
+import { flattenCategories } from "@/lib/categories";
 import "./globals.css";
 
 const { Header, Content, Footer } = Layout;
@@ -28,15 +29,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     if (!isCleanPage) {
       api.get("/api/v1/categories").then((res) => {
         if (res.data.code === 200) {
-          const cats: {label:string, value:string}[] = [];
-          function walk(nodes: any[]) {
-            for (const node of nodes) {
-              cats.push({ label: node.name, value: String(node.id) });
-              if (node.children) walk(node.children);
-            }
-          }
-          walk(res.data.data || []);
-          setCategories(cats);
+          setCategories(flattenCategories(res.data.data || []));
         }
       }).catch(() => {});
     }

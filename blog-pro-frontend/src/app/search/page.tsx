@@ -1,23 +1,16 @@
 "use client";
 
 import { useEffect, useState, Suspense } from "react";
-import { Card, List, Space, Typography, Spin, Empty } from "antd";
-import { EyeOutlined, LikeOutlined, CommentOutlined, ClockCircleOutlined } from "@ant-design/icons";
-import { useRouter, useSearchParams } from "next/navigation";
+import { List, Typography, Spin, Empty } from "antd";
+import { useSearchParams } from "next/navigation";
 import api from "@/lib/api";
+import ArticleCard from "@/components/ArticleCard";
 
-const { Title, Paragraph, Text } = Typography;
+const { Title, Text } = Typography;
 
 interface Article {
-  id: number;
-  title: string;
-  slug: string;
-  summary: string;
-  coverImageUrl: string;
-  viewCount: number;
-  likeCount: number;
-  commentCount: number;
-  publishedAt: string;
+  id: number; title: string; slug: string; summary: string; coverImageUrl: string;
+  viewCount: number; likeCount: number; commentCount: number; publishedAt: string;
 }
 
 function SearchContent() {
@@ -25,7 +18,6 @@ function SearchContent() {
   const query = searchParams.get("q") || "";
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
-  const router = useRouter();
 
   useEffect(() => {
     if (!query) { setLoading(false); return; }
@@ -55,50 +47,12 @@ function SearchContent() {
           dataSource={articles}
           renderItem={(a) => (
             <List.Item>
-              <Card
-                hoverable
-                onClick={() => router.push(`/articles/${a.slug}`)}
-                cover={
-                  a.coverImageUrl ? (
-                    <img alt={a.title} src={a.coverImageUrl} style={{ height: 180, objectFit: "cover" }} />
-                  ) : (
-                    <div style={{ height: 180, background: "linear-gradient(135deg, #667eea, #764ba2)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                      <span style={{ fontSize: 48 }}>📝</span>
-                    </div>
-                  )
-                }
-              >
-                <Card.Meta
-                  title={highlightMatch(a.title, query)}
-                  description={
-                    <div>
-                      <Paragraph ellipsis={{ rows: 2 }} type="secondary">
-                        {a.summary ? highlightMatch(a.summary, query) : "暂无摘要"}
-                      </Paragraph>
-                      <Space style={{ marginTop: 8 }} size={12}>
-                        <span><EyeOutlined /> {a.viewCount}</span>
-                        <span><LikeOutlined /> {a.likeCount}</span>
-                        <span><CommentOutlined /> {a.commentCount}</span>
-                        <span><ClockCircleOutlined /> {a.publishedAt?.slice(0, 10) || "草稿"}</span>
-                      </Space>
-                    </div>
-                  }
-                />
-              </Card>
+              <ArticleCard article={a} keyword={query} />
             </List.Item>
           )}
         />
       )}
     </div>
-  );
-}
-
-function highlightMatch(text: string, keyword: string) {
-  if (!keyword || !text) return text;
-  const regex = new RegExp(`(${keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, "gi");
-  const parts = text.split(regex);
-  return parts.map((part, i) =>
-    regex.test(part) ? <Text key={i} mark>{part}</Text> : part
   );
 }
 

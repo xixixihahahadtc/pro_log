@@ -6,6 +6,7 @@ import { SaveOutlined, SendOutlined, FileTextOutlined, PictureOutlined } from "@
 import { useRouter, useSearchParams } from "next/navigation";
 import api from "@/lib/api";
 import { useAuthStore } from "@/stores/authStore";
+import { flattenCategories } from "@/lib/categories";
 import ArticleEditor from "@/components/ArticleEditor";
 
 const { Title } = Typography;
