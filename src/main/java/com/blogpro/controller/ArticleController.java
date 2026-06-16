@@ -6,6 +6,7 @@ import com.blogpro.entity.Article;
 import com.blogpro.model.dto.request.ArticleCreateRequest;
 import com.blogpro.model.dto.request.DraftSaveRequest;
 import com.blogpro.model.dto.response.ApiResponse;
+import com.blogpro.model.dto.response.DashboardStatsResponse;
 import com.blogpro.model.dto.response.DraftResponse;
 import com.blogpro.model.enums.ResultCode;
 import java.util.List;
@@ -206,6 +207,13 @@ public class ArticleController {
     public ApiResponse<Article> adminDetail(@PathVariable Integer id) {
         Article article = articleService.getArticleById(id);
         return ApiResponse.success(article);
+    }
+
+    /** 管理员仪表盘统计 */
+    @GetMapping("/admin/stats")
+    @RequireRole("ADMIN")
+    public ApiResponse<DashboardStatsResponse> stats() {
+        return ApiResponse.success(articleService.getStats());
     }
 
     private DraftResponse toDraftResponse(Article article) {

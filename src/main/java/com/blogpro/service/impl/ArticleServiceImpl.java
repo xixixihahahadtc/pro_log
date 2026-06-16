@@ -7,7 +7,10 @@ import com.blogpro.entity.Article;
 import com.blogpro.entity.UserLike;
 import com.blogpro.exception.BusinessException;
 import com.blogpro.mapper.ArticleMapper;
+import com.blogpro.mapper.CommentMapper;
 import com.blogpro.mapper.UserLikeMapper;
+import com.blogpro.mapper.UserMapper;
+import com.blogpro.model.dto.response.DashboardStatsResponse;
 import com.blogpro.model.enums.ResultCode;
 import com.blogpro.service.ArticleService;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +26,8 @@ public class ArticleServiceImpl implements ArticleService {
 
     private final ArticleMapper articleMapper;
     private final UserLikeMapper userLikeMapper;
+    private final CommentMapper commentMapper;
+    private final UserMapper userMapper;
 
     @Override
     public IPage<Article> getPublishedArticles(int page, int size, Integer categoryId, Integer tagId) {
@@ -230,6 +235,33 @@ public class ArticleServiceImpl implements ArticleService {
             throw new BusinessException(ResultCode.NOT_FOUND, "文章不存在");
         }
         return article;
+    }
+
+    @Override
+    public DashboardStatsResponse getStats() {
+        DashboardStatsResponse stats = new DashboardStatsResponse();
+        stats.setTotalArticles(articleMapper.selectCount(new QueryWrapper<>()));
+        stats.setTotalComments(commentMapper.selectCount(new QueryWrapper<>()));
+        stats.setTotalUsers(userMapper.selectCount(new QueryWrapper<>()));
+
+        // 总浏览量
+        QueryWrapper<Article> viewWrapper = new QueryWrapper<>();
+        viewWrapper.select("COALESCE(SUM(view_count), 0) AS totalViews");
+        List<Object> result = articleMapper.selectObjs(viewWrapper);
+        long totalViews = 0;
+        if (result != null && !result.isEmpty() && result.get(0) != null) {
+            totalViews = ((Number) result.get(0)).longValue();
+        }
+        stats.setTotalViews(totalViews);
+
+        // 最近 5 篇已发布文章
+        QueryWrapper<Article> recentWrapper = new QueryWrapper<>();
+        recentWrapper.eq("status", "PUBLISHED")
+                .orderByDesc("published_at")
+                .last("LIMIT 5");
+        stats.setRecentArticles(articleMapper.selectList(recentWrapper));
+
+        return stats;
     }
 
     /** 生成 URL 友好的 slug（简化版：标题 + 时间戳） */

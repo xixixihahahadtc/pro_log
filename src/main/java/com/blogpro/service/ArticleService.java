@@ -2,6 +2,7 @@ package com.blogpro.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.blogpro.entity.Article;
+import com.blogpro.model.dto.response.DashboardStatsResponse;
 
 import java.util.List;
 
@@ -45,4 +46,7 @@ public interface ArticleService {
 
     /** 管理员按 ID 获取文章详情（不受状态限制） */
     Article getArticleById(Integer id);
+
+    /** 管理员仪表盘统计 */
+    DashboardStatsResponse getStats();
 }

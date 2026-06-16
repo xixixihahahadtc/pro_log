@@ -12,4 +12,6 @@ public interface CommentService {
     void reviewComment(Integer commentId, String status);
     /** 删除评论 */
     void deleteComment(Integer commentId);
+    /** 管理员分页获取所有评论（可按状态筛选） */
+    IPage<Comment> getAllComments(int page, int size, String status);
 }

@@ -57,6 +57,16 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
+    public IPage<Comment> getAllComments(int page, int size, String status) {
+        QueryWrapper<Comment> wrapper = new QueryWrapper<>();
+        if (status != null && !"ALL".equals(status)) {
+            wrapper.eq("status", status);
+        }
+        wrapper.orderByDesc("created_at");
+        return commentMapper.selectPage(new Page<>(page, size), wrapper);
+    }
+
+    @Override
     public void deleteComment(Integer commentId) {
         commentMapper.deleteById(commentId);
     }

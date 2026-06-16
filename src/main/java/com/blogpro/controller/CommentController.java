@@ -1,6 +1,7 @@
 package com.blogpro.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.blogpro.annotation.RequireRole;
 import com.blogpro.entity.Comment;
 import com.blogpro.model.dto.request.CommentCreateRequest;
@@ -46,6 +47,16 @@ public class CommentController {
 
         Comment created = commentService.createComment(comment);
         return ApiResponse.success(created);
+    }
+
+    /** 管理员评论列表（分页，按状态筛选） */
+    @GetMapping("/admin/comments")
+    @RequireRole("ADMIN")
+    public ApiResponse<IPage<Comment>> adminList(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(defaultValue = "ALL") String status) {
+        return ApiResponse.success(commentService.getAllComments(page, size, status));
     }
 
     /** 审核评论（管理员） */
