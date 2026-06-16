@@ -6,8 +6,11 @@ import com.blogpro.mapper.CategoryMapper;
 import com.blogpro.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 
@@ -22,6 +25,13 @@ public class DataInitializer implements CommandLineRunner {
 
     private final CategoryMapper categoryMapper;
     private final UserMapper userMapper;
+    private final PasswordEncoder passwordEncoder;
+
+    @Value("${ADMIN_USERNAME:}")
+    private String adminUsername;
+
+    @Value("${ADMIN_PASSWORD:}")
+    private String adminPassword;
 
     @Override
     public void run(String... args) {
@@ -43,16 +53,22 @@ public class DataInitializer implements CommandLineRunner {
             log.info("已初始化 {} 个默认分类", defaults.length);
         }
 
-        // 2. 确保至少有一个管理员：无 ADMIN 时自动提升最早注册的用户
-        long adminCount = userMapper.selectCount(
-                new QueryWrapper<User>().eq("role", "ADMIN"));
-        if (adminCount == 0) {
-            User firstUser = userMapper.selectOne(
-                    new QueryWrapper<User>().orderByAsc("id").last("LIMIT 1"));
-            if (firstUser != null && !"ADMIN".equals(firstUser.getRole())) {
-                firstUser.setRole("ADMIN");
-                userMapper.updateById(firstUser);
-                log.info("已自动提升用户「{}」为管理员（ADMIN）", firstUser.getUsername());
+        // 2. 初始化管理员账号（通过环境变量 ADMIN_USERNAME / ADMIN_PASSWORD）
+        if (StringUtils.hasText(adminUsername) && StringUtils.hasText(adminPassword)) {
+            User existing = userMapper.selectOne(
+                    new QueryWrapper<User>().eq("username", adminUsername));
+            if (existing == null) {
+                User admin = new User();
+                admin.setUsername(adminUsername);
+                admin.setPassword(passwordEncoder.encode(adminPassword));
+                admin.setNickname(adminUsername);
+                admin.setRole("ADMIN");
+                userMapper.insert(admin);
+                log.info("已创建管理员账号：{}（ADMIN）", adminUsername);
+            } else if (!"ADMIN".equals(existing.getRole())) {
+                existing.setRole("ADMIN");
+                userMapper.updateById(existing);
+                log.info("已将用户「{}」提升为管理员（ADMIN）", adminUsername);
             }
         }
     }

@@ -46,7 +46,7 @@ public class ArticleController {
 
     /** 创建文章 */
     @PostMapping
-    @RequireRole({"AUTHOR", "ADMIN"})
+    @RequireRole({"USER", "ADMIN"})
     public ApiResponse<Article> create(@Valid @RequestBody ArticleCreateRequest request) {
         // 从 JWT 安全上下文中取出当前用户 ID
         Integer userId = (Integer) SecurityContextHolder.getContext()
@@ -66,7 +66,7 @@ public class ArticleController {
 
     /** 更新文章 */
     @PutMapping("/{id}")
-    @RequireRole({"AUTHOR", "ADMIN"})
+    @RequireRole({"USER", "ADMIN"})
     public ApiResponse<Article> update(@PathVariable Integer id,
                                        @Valid @RequestBody ArticleCreateRequest request) {
         Article article = new Article();
@@ -82,7 +82,7 @@ public class ArticleController {
 
     /** 删除文章（软删除） */
     @DeleteMapping("/{id}")
-    @RequireRole({"AUTHOR", "ADMIN"})
+    @RequireRole({"USER", "ADMIN"})
     public ApiResponse<Void> delete(@PathVariable Integer id) {
         articleService.deleteArticle(id);
         return ApiResponse.success(null);
@@ -99,7 +99,7 @@ public class ArticleController {
 
     /** 保存草稿（新建或更新） */
     @PostMapping("/draft")
-    @RequireRole({"AUTHOR", "ADMIN"})
+    @RequireRole({"USER", "ADMIN"})
     public ApiResponse<DraftResponse> saveDraft(@RequestBody DraftSaveRequest request) {
         Integer userId = (Integer) SecurityContextHolder.getContext()
                 .getAuthentication().getPrincipal();
@@ -118,7 +118,7 @@ public class ArticleController {
 
     /** 获取当前用户的草稿列表 */
     @GetMapping("/drafts")
-    @RequireRole({"AUTHOR", "ADMIN"})
+    @RequireRole({"USER", "ADMIN"})
     public ApiResponse<List<DraftResponse>> listDrafts() {
         Integer userId = (Integer) SecurityContextHolder.getContext()
                 .getAuthentication().getPrincipal();
@@ -131,7 +131,7 @@ public class ArticleController {
 
     /** 获取单篇草稿 */
     @GetMapping("/draft/{id}")
-    @RequireRole({"AUTHOR", "ADMIN"})
+    @RequireRole({"USER", "ADMIN"})
     public ApiResponse<DraftResponse> getDraft(@PathVariable Integer id) {
         Article article = articleService.getDraftById(id);
         return ApiResponse.success(toDraftResponse(article));
@@ -139,7 +139,7 @@ public class ArticleController {
 
     /** 删除草稿 */
     @DeleteMapping("/draft/{id}")
-    @RequireRole({"AUTHOR", "ADMIN"})
+    @RequireRole({"USER", "ADMIN"})
     public ApiResponse<Void> deleteDraft(@PathVariable Integer id) {
         articleService.deleteDraft(id);
         return ApiResponse.success(null);
@@ -147,7 +147,7 @@ public class ArticleController {
 
     /** 发布草稿 */
     @PutMapping("/{id}/publish")
-    @RequireRole({"AUTHOR", "ADMIN"})
+    @RequireRole({"USER", "ADMIN"})
     public ApiResponse<Article> publishDraft(@PathVariable Integer id) {
         Article published = articleService.publishDraft(id);
         return ApiResponse.success(published);
@@ -167,7 +167,7 @@ public class ArticleController {
 
     /** 管理员文章列表（所有状态，可按 status 筛选） */
     @GetMapping("/admin")
-    @RequireRole({"AUTHOR", "ADMIN"})
+    @RequireRole({"USER", "ADMIN"})
     public ApiResponse<IPage<Article>> adminList(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -178,7 +178,7 @@ public class ArticleController {
 
     /** 管理员按 ID 获取文章详情 */
     @GetMapping("/admin/{id}")
-    @RequireRole({"AUTHOR", "ADMIN"})
+    @RequireRole({"USER", "ADMIN"})
     public ApiResponse<Article> adminDetail(@PathVariable Integer id) {
         Article article = articleService.getArticleById(id);
         return ApiResponse.success(article);
