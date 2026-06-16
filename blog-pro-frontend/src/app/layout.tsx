@@ -20,6 +20,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const { isLoggedIn, nickname, logout } = useAuthStore();
   const [searchText, setSearchText] = useState("");
   const [categories, setCategories] = useState<{label:string, value:string}[]>([]);
+  const isAuthPage = pathname === "/login" || pathname === "/register";
 
   useEffect(() => {
     api.get("/api/v1/categories").then((res) => {
@@ -66,6 +67,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   style={{ flex: 1 }}
                 />
                 <div style={{ flex: 1, display: "flex", justifyContent: "center", maxWidth: 400 }}>
+                  {!isAuthPage && (
                   <Input.Search
                     placeholder="搜索文章..."
                     value={searchText}
@@ -79,6 +81,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     enterButton={<SearchOutlined />}
                     style={{ width: "100%" }}
                   />
+                  )}
                 </div>
                 <Space>
                   {isLoggedIn ? (
@@ -100,8 +103,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   )}
                 </Space>
               </Header>
-              {/* 分类导航条 — 所有页面可见 */}
-              {categories.length > 0 && (
+              {/* 分类导航条 — 非认证页面可见 */}
+              {!isAuthPage && categories.length > 0 && (
                 <div style={{ background: "#fff", borderBottom: "1px solid #f0f0f0", padding: "0 24px" }}>
                   <Tabs
                     activeKey={currentCategory || "all"}
@@ -121,7 +124,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <Content style={{ padding: "24px", maxWidth: 1200, margin: "0 auto", width: "100%" }}>
                 <App>{children}</App>
               </Content>
-              <AiChat />
+              {!isAuthPage && <AiChat />}
               <Footer style={{ textAlign: "center" }}>
                 AI Blog Pro © 2026 — 企业级 AI 博客平台
               </Footer>
