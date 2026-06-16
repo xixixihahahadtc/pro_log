@@ -65,10 +65,12 @@ public class DataInitializer implements CommandLineRunner {
                 admin.setRole("ADMIN");
                 userMapper.insert(admin);
                 log.info("已创建管理员账号：{}（ADMIN）", adminUsername);
-            } else if (!"ADMIN".equals(existing.getRole())) {
+            } else {
+                // 已存在则同步密码和角色（.env 配置始终生效）
+                existing.setPassword(passwordEncoder.encode(adminPassword));
                 existing.setRole("ADMIN");
                 userMapper.updateById(existing);
-                log.info("已将用户「{}」提升为管理员（ADMIN）", adminUsername);
+                log.info("已同步管理员账号：{}（ADMIN，密码已更新）", adminUsername);
             }
         }
     }
