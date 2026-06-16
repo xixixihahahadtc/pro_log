@@ -4,6 +4,7 @@ import com.blogpro.interceptor.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -29,6 +30,8 @@ public class SecurityConfig {
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             // 权限配置
             .authorizeHttpRequests(auth -> auth
+                // 允许 CORS 预检请求
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 // 公开端点（无需认证）
                 .requestMatchers("/user/register", "/user/login", "/user/refresh").permitAll()
                 .requestMatchers("/swagger-ui*", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
