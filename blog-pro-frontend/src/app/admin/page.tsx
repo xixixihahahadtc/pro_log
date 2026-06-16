@@ -91,9 +91,9 @@ function AdminPageContent() {
     const editParam = searchParams.get("edit");
 
     if (draftParam) {
-      loadArticle(parseInt(draftParam), "draft");
+      loadArticle(parseInt(draftParam, 10), "draft");
     } else if (editParam) {
-      loadArticle(parseInt(editParam), "edit");
+      loadArticle(parseInt(editParam, 10), "edit");
     } else {
       // 自动加载最近的草稿（仅在无 draft 和 edit 参数时）
       api
@@ -134,6 +134,8 @@ function AdminPageContent() {
   const autoSave = useCallback(() => {
     if (saveTimer.current) clearTimeout(saveTimer.current);
     saveTimer.current = setTimeout(async () => {
+      // edit 模式下不自动保存 — 只手动保存
+      if (searchParams.get("edit")) return;
       if (!title && !content) return;
       setSaving(true);
       try {
@@ -172,17 +174,37 @@ function AdminPageContent() {
     if (!content.trim()) { message.error("内容不能为空"); return; }
     setPublishing(true);
     try {
-      const saveRes = await api.post("/api/v1/articles/draft", {
-        id: draftId, title, content, summary, coverImageUrl, categoryId
-      });
-      const articleId = saveRes.data.data.id;
+      const editMode = searchParams.get("edit");
+      if (editMode) {
+        // 编辑已发布文章：直接更新
+        const res = await api.put(`/api/v1/articles/${editMode}`, {
+          title, content, summary, coverImageUrl, categoryId
+        });
+        if (res.data.code === 200) {
+          message.success("文章更新成功！");
+          router.push("/");
+        } else {
+          message.error(res.data.message || "更新失败");
+        }
+      } else {
+        // 新建/草稿：保存草稿 + 发布
+        const saveRes = await api.post("/api/v1/articles/draft", {
+          id: draftId, title, content, summary, coverImageUrl, categoryId
+        });
+        const articleId = saveRes.data.data.id;
 
-      const pubRes = await api.put(`/api/v1/articles/${articleId}/publish`);
-      if (pubRes.data.code === 200) {
-        message.success("文章发布成功！");
-        router.push("/");
+        const pubRes = await api.put(`/api/v1/articles/${articleId}/publish`);
+        if (pubRes.data.code === 200) {
+          message.success("文章发布成功！");
+          router.push("/");
+        } else {
+          message.error(pubRes.data.message || "发布失败");
+        }
       }
-    } catch { message.error("发布失败"); }
+    } catch {
+      const isEdit = !!searchParams.get("edit");
+      message.error(isEdit ? "更新失败" : "发布失败");
+    }
     setPublishing(false);
   };
 
