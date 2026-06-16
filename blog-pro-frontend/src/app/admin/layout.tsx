@@ -11,7 +11,6 @@ const menuItems = [
   { key: "/admin/dashboard", label: "仪表盘" },
   { key: "/admin", label: "写文章" },
   { key: "/admin/articles", label: "文章管理" },
-  { key: "/admin/drafts", label: "草稿箱" },
   { key: "/admin/categories", label: "分类管理" },
   { key: "/admin/tags", label: "标签管理" },
   { key: "/admin/comments", label: "评论审核" },

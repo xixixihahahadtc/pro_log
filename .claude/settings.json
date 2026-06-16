@@ -21,7 +21,9 @@
       "Bash(mysql -uroot -p\"Xia20041004\" blog_pro -e \"CREATE TABLE IF NOT EXISTS user_likes \\(user_id INT NOT NULL, article_id INT NOT NULL, created_at DATETIME DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY \\(user_id, article_id\\), FOREIGN KEY \\(user_id\\) REFERENCES user\\(id\\) ON DELETE CASCADE, FOREIGN KEY \\(article_id\\) REFERENCES article\\(id\\) ON DELETE CASCADE\\) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\")",
       "PowerShell(mysql -uroot -pXia20041004 blog_pro -e \"CREATE TABLE IF NOT EXISTS user_likes \\(user_id INT NOT NULL, article_id INT NOT NULL, created_at DATETIME DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY \\(user_id, article_id\\), FOREIGN KEY \\(user_id\\) REFERENCES user\\(id\\) ON DELETE CASCADE, FOREIGN KEY \\(article_id\\) REFERENCES article\\(id\\) ON DELETE CASCADE\\) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci\" 2>&1)",
       "Bash(curl -s -X POST http://localhost:8080/api/v1/articles/1/like -H 'Authorization: Bearer eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJVU0VSX0xPR0lOIiwidXNlcklkIjo0LCJ1c2VybmFtZSI6ImFkbWluIiwicm9sZSI6IkFETUlOIiwiaWF0IjoxNzgxNjA1Nzc1LCJleHAiOjE3ODE2OTIxNzV9.tUrSJIUovxWp13Ww7Af5YO7Uwv8NYFSmP6mEH26Fsi-RsL2H-7BUMrnaioq7KUf3')",
-      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000)"
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000)",
+      "Bash(taskkill //PID 27544 //F)",
+      "Bash(npx next *)"
     ]
   }
 }
