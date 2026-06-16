@@ -57,42 +57,60 @@ function AdminPageContent() {
     if (!isLoggedIn) router.push("/login");
   }, [isLoggedIn]);
 
-  // 加载草稿（通过 URL 参数 draftId 或自动加载最近草稿）
+  // 加载文章到编辑器（draft 或 edit 模式）
   useEffect(() => {
-    const loadDraft = async (id: number) => {
+    const loadArticle = async (id: number, mode: "draft" | "edit") => {
       try {
-        const res = await api.get(`/api/v1/articles/draft/${id}`);
+        const url =
+          mode === "draft"
+            ? `/api/v1/articles/draft/${id}`
+            : `/api/v1/articles/admin/${id}`;
+        const res = await api.get(url);
         if (res.data.code === 200) {
-          const draft = res.data.data;
-          setDraftId(draft.id);
-          setTitle(draft.title || "");
-          setContent(draft.content || "");
-          setSummary(draft.summary || "");
-          setCoverImageUrl(draft.coverImageUrl || "");
-          setCategoryId(draft.categoryId);
-          message.info(`已恢复草稿「${draft.title || "无标题"}」`);
+          const article = res.data.data;
+          setDraftId(article.id);
+          setTitle(article.title || "");
+          setContent(article.content || "");
+          setSummary(article.summary || "");
+          setCoverImageUrl(article.coverImageUrl || "");
+          setCategoryId(article.categoryId);
+          if (mode === "edit") {
+            message.info(`正在编辑「${article.title || "无标题"}」`);
+          } else {
+            message.info(`已恢复草稿「${article.title || "无标题"}」`);
+          }
+        } else {
+          message.error(res.data.message || (mode === "edit" ? "加载文章失败" : "加载草稿失败"));
         }
-      } catch { message.error("加载草稿失败"); }
+      } catch {
+        message.error(mode === "edit" ? "加载文章失败" : "加载草稿失败");
+      }
     };
 
-    // 优先使用 URL 参数指定的草稿
     const draftParam = searchParams.get("draft");
+    const editParam = searchParams.get("edit");
+
     if (draftParam) {
-      loadDraft(parseInt(draftParam));
+      loadArticle(parseInt(draftParam), "draft");
+    } else if (editParam) {
+      loadArticle(parseInt(editParam), "edit");
     } else {
-      // 自动加载最近的草稿
-      api.get("/api/v1/articles/drafts").then((res) => {
-        if (res.data.code === 200 && res.data.data?.length > 0) {
-          const latest = res.data.data[0];
-          setDraftId(latest.id);
-          setTitle(latest.title || "");
-          setContent(latest.content || "");
-          setSummary(latest.summary || "");
-          setCoverImageUrl(latest.coverImageUrl || "");
-          setCategoryId(latest.categoryId);
-          message.info(`已恢复最近草稿「${latest.title || "无标题"}」`);
-        }
-      }).catch(() => {});
+      // 自动加载最近的草稿（仅在无 draft 和 edit 参数时）
+      api
+        .get("/api/v1/articles/drafts")
+        .then((res) => {
+          if (res.data.code === 200 && res.data.data?.length > 0) {
+            const latest = res.data.data[0];
+            setDraftId(latest.id);
+            setTitle(latest.title || "");
+            setContent(latest.content || "");
+            setSummary(latest.summary || "");
+            setCoverImageUrl(latest.coverImageUrl || "");
+            setCategoryId(latest.categoryId);
+            message.info(`已恢复最近草稿「${latest.title || "无标题"}」`);
+          }
+        })
+        .catch(() => {});
     }
   }, [searchParams]);
 
@@ -172,7 +190,9 @@ function AdminPageContent() {
     <div style={{ maxWidth: 1000, margin: "0 auto" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-          <Title level={3} style={{ margin: 0 }}>✏️ 创作新文章</Title>
+          <Title level={3} style={{ margin: 0 }}>
+            {searchParams.get("edit") ? "✏️ 编辑文章" : "✏️ 创作新文章"}
+          </Title>
           {lastSaved && (
             <span style={{ fontSize: 12, color: "#52c41a", background: "#f6ffed", padding: "2px 10px", borderRadius: 4 }}>
               {saving ? "保存中..." : `草稿已保存 ${lastSaved}`}
