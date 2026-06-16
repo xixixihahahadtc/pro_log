@@ -1,0 +1,49 @@
+"use client";
+
+import { useState } from "react";
+import { Card, Form, Input, Button, message, Typography } from "antd";
+import { UserOutlined, LockOutlined, SmileOutlined } from "@ant-design/icons";
+import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/stores/authStore";
+
+const { Title, Text } = Typography;
+
+export default function RegisterPage() {
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+  const { register } = useAuthStore();
+
+  const onFinish = async (values: { username: string; password: string; nickname: string }) => {
+    setLoading(true);
+    const err = await register(values.username, values.password, values.nickname);
+    setLoading(false);
+    if (err) message.error(err);
+    else {
+      message.success("注册成功，请登录");
+      router.push("/login");
+    }
+  };
+
+  return (
+    <div style={{ maxWidth: 400, margin: "80px auto" }}>
+      <Card>
+        <Title level={3} style={{ textAlign: "center" }}>注册 AI Blog Pro</Title>
+        <Form onFinish={onFinish} size="large">
+          <Form.Item name="username" rules={[{ required: true, message: "请输入用户名" }]}>
+            <Input prefix={<UserOutlined />} placeholder="用户名" />
+          </Form.Item>
+          <Form.Item name="password" rules={[{ required: true, min: 6, message: "密码至少6位" }]}>
+            <Input.Password prefix={<LockOutlined />} placeholder="密码" />
+          </Form.Item>
+          <Form.Item name="nickname">
+            <Input prefix={<SmileOutlined />} placeholder="昵称（选填）" />
+          </Form.Item>
+          <Form.Item>
+            <Button type="primary" htmlType="submit" loading={loading} block>注册</Button>
+          </Form.Item>
+        </Form>
+        <Text type="secondary">已有账号？<a onClick={() => router.push("/login")}>去登录</a></Text>
+      </Card>
+    </div>
+  );
+}
