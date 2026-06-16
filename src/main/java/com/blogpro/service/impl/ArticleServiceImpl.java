@@ -245,13 +245,8 @@ public class ArticleServiceImpl implements ArticleService {
         stats.setTotalUsers(userMapper.selectCount(new QueryWrapper<>()));
 
         // 总浏览量
-        QueryWrapper<Article> viewWrapper = new QueryWrapper<>();
-        viewWrapper.select("COALESCE(SUM(view_count), 0) AS totalViews");
-        List<Object> result = articleMapper.selectObjs(viewWrapper);
-        long totalViews = 0;
-        if (result != null && !result.isEmpty() && result.get(0) != null) {
-            totalViews = ((Number) result.get(0)).longValue();
-        }
+        long totalViews = articleMapper.selectList(new QueryWrapper<>())
+                .stream().mapToLong(a -> a.getViewCount() == null ? 0 : a.getViewCount()).sum();
         stats.setTotalViews(totalViews);
 
         // 最近 5 篇已发布文章
