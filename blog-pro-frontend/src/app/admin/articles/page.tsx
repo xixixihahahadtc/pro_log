@@ -49,6 +49,8 @@ export default function ArticlesPage() {
       if (res.data.code === 200) {
         setArticles(res.data.data.records || []);
         setTotal(res.data.data.total || 0);
+      } else {
+        message.error(res.data.message || "加载文章列表失败");
       }
     } catch {
       message.error("加载文章列表失败");
@@ -66,6 +68,8 @@ export default function ArticlesPage() {
       if (res.data.code === 200) {
         message.success("已归档");
         fetchArticles(page, status);
+      } else {
+        message.error(res.data.message || "归档失败");
       }
     } catch {
       message.error("归档失败");
@@ -78,6 +82,8 @@ export default function ArticlesPage() {
       if (res.data.code === 200) {
         message.success("草稿已删除");
         fetchArticles(page, status);
+      } else {
+        message.error(res.data.message || "删除失败");
       }
     } catch {
       message.error("删除失败");
