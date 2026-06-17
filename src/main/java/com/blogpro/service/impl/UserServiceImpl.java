@@ -76,6 +76,7 @@ public class UserServiceImpl implements UserService {
         response.setAccessToken(accessToken);
         response.setRefreshToken(refreshToken);
         response.setNickname(user.getNickname());
+        response.setRole(user.getRole());
         return response;
     }
 
@@ -111,6 +112,7 @@ public class UserServiceImpl implements UserService {
         response.setAccessToken(newAccessToken);
         response.setRefreshToken(newRefreshToken);
         response.setNickname(user.getNickname());
+        response.setRole(user.getRole());
         return response;
     }
 }

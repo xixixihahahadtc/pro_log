@@ -18,7 +18,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const currentCategory = searchParams.get("category");
-  const { isLoggedIn, nickname, logout } = useAuthStore();
+  const { isLoggedIn, nickname, role, logout } = useAuthStore();
   const [searchText, setSearchText] = useState("");
   const [categories, setCategories] = useState<{label:string, value:string}[]>([]);
   const isAuthPage = pathname === "/login" || pathname === "/register";
@@ -37,8 +37,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
   const menuItems = [
     { key: "/", label: "首页" },
-    ...(isLoggedIn
-      ? [{ key: "/admin", label: "管理" }]
+    ...(role === "ADMIN"
+      ? [{ key: "/admin/dashboard", label: "管理" }]
       : []),
   ];
 

@@ -20,11 +20,12 @@ const menuItems = [
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
-  const { isLoggedIn } = useAuthStore();
+  const { isLoggedIn, role } = useAuthStore();
 
   useEffect(() => {
-    if (!isLoggedIn) router.push("/login");
-  }, [isLoggedIn, router]);
+    if (!isLoggedIn) { router.push("/login"); return; }
+    if (role !== "ADMIN") { router.push("/"); }
+  }, [isLoggedIn, role, router]);
 
   return (
     <Layout style={{ minHeight: "calc(100vh - 64px - 70px)" }}>
