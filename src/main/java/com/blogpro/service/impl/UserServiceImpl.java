@@ -7,6 +7,7 @@ import com.blogpro.mapper.UserMapper;
 import com.blogpro.model.dto.request.LoginRequest;
 import com.blogpro.model.dto.request.RegisterRequest;
 import com.blogpro.model.dto.response.LoginResponse;
+import com.blogpro.model.dto.response.UserResponse;
 import com.blogpro.model.enums.ResultCode;
 import com.blogpro.service.UserService;
 import com.blogpro.utils.JwtUtils;
