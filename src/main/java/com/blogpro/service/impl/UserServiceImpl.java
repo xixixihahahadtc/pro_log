@@ -115,4 +115,17 @@ public class UserServiceImpl implements UserService {
         response.setRole(user.getRole());
         return response;
     }
+
+    @Override
+    public UserResponse getUserById(Integer id) {
+        User user = userMapper.selectById(id);
+        if (user == null) throw new BusinessException(ResultCode.NOT_FOUND, "用户不存在");
+        UserResponse resp = new UserResponse();
+        resp.setId(user.getId());
+        resp.setUsername(user.getUsername());
+        resp.setNickname(user.getNickname());
+        resp.setAvatarUrl(user.getAvatarUrl());
+        resp.setCreatedAt(user.getCreatedAt());
+        return resp;
+    }
 }

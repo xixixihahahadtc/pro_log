@@ -34,6 +34,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 // 公开端点（无需认证）
                 .requestMatchers("/user/register", "/user/login", "/user/refresh").permitAll()
+                .requestMatchers(HttpMethod.GET, "/user/{id}").permitAll()
                 .requestMatchers("/swagger-ui*", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                 .requestMatchers("/actuator/health").permitAll()
                 // 上传的图片公开访问

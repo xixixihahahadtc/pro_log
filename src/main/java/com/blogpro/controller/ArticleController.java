@@ -32,8 +32,9 @@ public class ArticleController {
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false) Integer categoryId,
-            @RequestParam(required = false) Integer tagId) {
-        IPage<Article> result = articleService.getPublishedArticles(page, size, categoryId, tagId);
+            @RequestParam(required = false) Integer tagId,
+            @RequestParam(required = false) Integer authorId) {
+        IPage<Article> result = articleService.getPublishedArticles(page, size, categoryId, tagId, authorId);
         return ApiResponse.success(result);
     }
 

@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface ArticleService {
     /** 分页获取已发布的文章列表 */
-    IPage<Article> getPublishedArticles(int page, int size, Integer categoryId, Integer tagId);
+    IPage<Article> getPublishedArticles(int page, int size, Integer categoryId, Integer tagId, Integer authorId);
     /** 根据 slug 获取文章详情（并增加浏览次数） */
     Article getArticleBySlug(String slug);
     /** 创建文章 */

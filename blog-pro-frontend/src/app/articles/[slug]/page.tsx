@@ -10,7 +10,7 @@ import { useAuthStore } from "@/stores/authStore";
 
 const { Title, Paragraph, Text } = Typography;
 
-interface Article { id: number; title: string; content: string; authorName: string; viewCount: number; likeCount: number; commentCount: number; publishedAt: string; }
+interface Article { id: number; title: string; content: string; authorId: number; authorName: string; viewCount: number; likeCount: number; commentCount: number; publishedAt: string; }
 
 interface Comment { id: number; content: string; status: string; username: string; createdAt: string; userId: number; parentId: number | null; }
 
@@ -82,7 +82,8 @@ export default function ArticlePage() {
       <Card>
         <Title>{article.title}</Title>
         <Space size={16} style={{ marginBottom: 16, color: "#999" }}>
-          <span>{article.authorName}</span>
+          <a onClick={() => router.push(`/user/${article.authorId}`)}
+            style={{ color: "#1677ff", cursor: "pointer" }}>{article.authorName}</a>
           <span><ClockCircleOutlined /> {article.publishedAt?.slice(0, 10)}</span>
           <span><EyeOutlined /> {article.viewCount}</span>
           <span><LikeOutlined /> {article.likeCount}</span>

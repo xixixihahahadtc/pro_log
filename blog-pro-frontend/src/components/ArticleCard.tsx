@@ -12,6 +12,7 @@ interface Article {
   slug: string;
   summary: string;
   coverImageUrl: string;
+  authorId: number;
   authorName: string;
   viewCount: number;
   likeCount: number;
@@ -76,7 +77,8 @@ export default function ArticleCard({
                 : (article.summary || "暂无摘要")}
             </Paragraph>
             <Space style={{ marginTop: 8 }} size={12}>
-              <span>{article.authorName}</span>
+              <a onClick={(e) => { e.stopPropagation(); router.push(`/user/${article.authorId}`); }}
+            style={{ color: "#1677ff", cursor: "pointer" }}>{article.authorName}</a>
               <span><EyeOutlined /> {article.viewCount}</span>
               <span><LikeOutlined /> {article.likeCount}</span>
               <span><CommentOutlined /> {article.commentCount}</span>

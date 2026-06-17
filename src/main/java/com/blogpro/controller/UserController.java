@@ -5,6 +5,7 @@ import com.blogpro.model.dto.request.RefreshTokenRequest;
 import com.blogpro.model.dto.request.RegisterRequest;
 import com.blogpro.model.dto.response.ApiResponse;
 import com.blogpro.model.dto.response.LoginResponse;
+import com.blogpro.model.dto.response.UserResponse;
 import com.blogpro.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -42,5 +43,10 @@ public class UserController {
     public ApiResponse<LoginResponse> refresh(@Valid @RequestBody RefreshTokenRequest request) {
         LoginResponse response = userService.refreshAccessToken(request.getRefreshToken());
         return ApiResponse.success(response);
+    }
+
+    @GetMapping("/{id}")
+    public ApiResponse<UserResponse> profile(@PathVariable Integer id) {
+        return ApiResponse.success(userService.getUserById(id));
     }
 }

@@ -35,17 +35,13 @@ public class ArticleServiceImpl implements ArticleService {
     private final UserMapper userMapper;
 
     @Override
-    public IPage<Article> getPublishedArticles(int page, int size, Integer categoryId, Integer tagId) {
-        // 构建查询条件
+    public IPage<Article> getPublishedArticles(int page, int size, Integer categoryId, Integer tagId, Integer authorId) {
         QueryWrapper<Article> wrapper = new QueryWrapper<>();
         wrapper.eq("status", "PUBLISHED")
                .orderByDesc("published_at");
 
-        if (categoryId != null) {
-            wrapper.eq("category_id", categoryId);
-        }
-        // 注意: tag 过滤需要通过 article_tag 中间表联查
-        // 此处先简化，只做 category 过滤，tag 过滤在后续优化
+        if (categoryId != null) wrapper.eq("category_id", categoryId);
+        if (authorId != null) wrapper.eq("author_id", authorId);
 
         IPage<Article> result = articleMapper.selectPage(new Page<>(page, size), wrapper);
         fillAuthorNames(result.getRecords());
@@ -280,7 +276,7 @@ public class ArticleServiceImpl implements ArticleService {
         if (authorIds.isEmpty()) return;
         List<User> users = userMapper.selectBatchIds(authorIds);
         Map<Integer, String> nameMap = users.stream()
-                .collect(Collectors.toMap(User::getId, User::getUsername));
+                .collect(Collectors.toMap(User::getId, u -> u.getNickname() != null && !u.getNickname().isBlank() ? u.getNickname() : u.getUsername()));
         for (Article a : articles) {
             if (a.getAuthorId() != null) a.setAuthorName(nameMap.getOrDefault(a.getAuthorId(), ""));
         }
