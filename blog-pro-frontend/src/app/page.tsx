@@ -10,7 +10,7 @@ const { Title, Text } = Typography;
 
 interface Article {
   id: number; title: string; slug: string; summary: string; coverImageUrl: string;
-  viewCount: number; likeCount: number; commentCount: number; publishedAt: string;
+  authorName: string; viewCount: number; likeCount: number; commentCount: number; publishedAt: string;
 }
 
 export default function HomePage() {
